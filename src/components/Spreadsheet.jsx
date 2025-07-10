@@ -1,30 +1,32 @@
 import { useState, useEffect, useRef } from "react";
-import { rows } from "../data/spreadsheetData";
+import { rows as initialRows } from "../data/spreadsheetData";
 
 const Spreadsheet = ({ colWidths, searchTerm }) => {
-
 	const containerRef = useRef(null);
-    const rawRows = [...rows];
-    while (rawRows.length < 100) rawRows.push({});
-    
-    const filteredRows = rawRows.filter((row) => {
-        if (!searchTerm.trim()) return true;
-        return Object.values(row).some((val) =>
-            typeof val === "string"
-                ? val.toLowerCase().includes(searchTerm.toLowerCase())
-                : false
-        );
-    });
-    
-
 	const [selectedCell, setSelectedCell] = useState(null);
+	const [editingCell, setEditingCell] = useState(null);
+	const [tableRows, setTableRows] = useState(() => {
+		const filledRows = [...initialRows];
+		while (filledRows.length < 100) filledRows.push({});
+		return filledRows;
+	});
+
+	// Filtered rows based on search
+	const filteredRows = tableRows.filter((row) => {
+		if (!searchTerm.trim()) return true;
+		return Object.values(row).some((val) =>
+			typeof val === "string"
+				? val.toLowerCase().includes(searchTerm.toLowerCase())
+				: false
+		);
+	});
 
 	useEffect(() => {
 		const handleKeyDown = (e) => {
-			if (!selectedCell) return;
+			if (!selectedCell || editingCell) return;
 
 			const { row, col } = selectedCell;
-			const maxRows =filteredRows.length;
+			const maxRows = filteredRows.length;
 			const maxCols = 10;
 
 			switch (e.key) {
@@ -44,13 +46,16 @@ const Spreadsheet = ({ colWidths, searchTerm }) => {
 					setSelectedCell({ row, col: Math.min(col + 1, maxCols - 1) });
 					e.preventDefault();
 					break;
+				case "Enter":
+					setEditingCell(selectedCell);
+					break;
 			}
 		};
 
 		const container = containerRef.current;
 		container?.addEventListener("keydown", handleKeyDown);
 		return () => container?.removeEventListener("keydown", handleKeyDown);
-	}, [selectedCell]);
+	}, [selectedCell, editingCell, filteredRows.length]);
 
 	useEffect(() => {
 		containerRef.current?.focus();
@@ -84,6 +89,20 @@ const Spreadsheet = ({ colWidths, searchTerm }) => {
 		}
 	};
 
+	// Mapping from column index to row key
+	const columnKeys = [
+		"jobRequest",
+		"submitted",
+		"status",
+		"submitter",
+		"url",
+		"assigned",
+		"priority",
+		"dueDate",
+		"estValue",
+		"placeholder",
+	];
+
 	return (
 		<div
 			ref={containerRef}
@@ -92,9 +111,9 @@ const Spreadsheet = ({ colWidths, searchTerm }) => {
 		>
 			{filteredRows.map((row, rowIndex) => (
 				<div key={rowIndex} className="flex text-sm h-[36px]">
-					{/* Index column */}
+					{/* Index Column */}
 					<div
-						className="px-2 py-1 text-center bg-gray-50 border-r border-[#eeeeee] text-[#757575] font-medium w-[50px]"
+						className="px-2 py-1 text-center bg-gray-50 border-r border-[#eeeeee] text-[#757575] font-medium"
 						style={{
 							width: colWidths[0],
 							minWidth: 30,
@@ -104,21 +123,13 @@ const Spreadsheet = ({ colWidths, searchTerm }) => {
 						{rowIndex + 1}
 					</div>
 
-					{/* Main spreadsheet columns */}
-					{[
-						row.jobRequest,
-						row.submitted,
-						row.status,
-						row.submitter,
-						row.url,
-						row.assigned,
-						row.priority,
-						row.dueDate,
-						row.estValue,
-						row.placeholder,
-					].map((cell, colIdx) => {
+					{/* Main Columns */}
+					{columnKeys.map((key, colIdx) => {
+						const cell = row[key];
 						const isSelected =
 							selectedCell?.row === rowIndex && selectedCell?.col === colIdx;
+						const isEditing =
+							editingCell?.row === rowIndex && editingCell?.col === colIdx;
 
 						const baseClass =
 							"px-2 py-1 truncate overflow-hidden box-border cursor-pointer";
@@ -142,12 +153,12 @@ const Spreadsheet = ({ colWidths, searchTerm }) => {
 						return (
 							<div
 								key={colIdx}
-								onClick={() => {
-									setSelectedCell({ row: rowIndex, col: colIdx });
-									console.log(
-										`Clicked cell [Row ${rowIndex + 1}, Col ${colIdx + 1}]`
-									);
-								}}
+								onClick={() =>
+									setSelectedCell({ row: rowIndex, col: colIdx })
+								}
+								onDoubleClick={() =>
+									setEditingCell({ row: rowIndex, col: colIdx })
+								}
 								className={`${baseClass} ${textAlign} ${selectedBorder}`}
 								style={{
 									...style,
@@ -165,8 +176,29 @@ const Spreadsheet = ({ colWidths, searchTerm }) => {
 									}),
 								}}
 							>
-								{/* Cell Content */}
-								{colIdx === 2 && typeof cell === "string" ? (
+								{/* Render Input If Editing */}
+								{isEditing ? (
+									<input
+										type="text"
+										autoFocus
+										defaultValue={typeof cell === "string" ? cell : ""}
+										onBlur={(e) => {
+											const updated = [...tableRows];
+											updated[rowIndex][key] = e.target.value;
+											setTableRows(updated);
+											setEditingCell(null);
+										}}
+										onKeyDown={(e) => {
+											if (e.key === "Enter") {
+												const updated = [...tableRows];
+												updated[rowIndex][key] = e.target.value;
+												setTableRows(updated);
+												setEditingCell(null);
+											}
+										}}
+										className="w-full h-full bg-white outline-none px-1 text-sm"
+									/>
+								) : colIdx === 2 && typeof cell === "string" ? (
 									<span
 										className={`font-medium py-1 px-2 text-xs rounded-2xl justify-center ${getStatusStyle(
 											cell
