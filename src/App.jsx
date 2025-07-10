@@ -1,4 +1,4 @@
-import Navbar from "./components/NavBar";
+import Navbar from "./components/Navbar";
 import Toolbar from "./components/ToolBar";
 import FormulaBar from "./components/FormulaBar";
 import Spreadsheet from "./components/Spreadsheet";
