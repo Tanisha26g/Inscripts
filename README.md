@@ -1,12 +1,49 @@
-# React + Vite
+# React Spreadsheet Prototype
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a front-end-only React prototype that replicates a Google Sheets/Excel-like experience, built as part of the React Intern Assignment.
 
-Currently, two official plugins are available:
+## 🔍 Project Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The goal was to implement a **pixel-perfect**, interactive spreadsheet interface as per the provided [Figma design](https://www.figma.com/design/3nywpu5sz45RrCmwe68QZP/Intern-Design-Assigment?node-id=2-2535&t=DJGGMt8I4fiZjoIB-1), mimicking key features of tools like Google Sheets.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 Live Demo
+
+[🌐 View Live Project](https://inscripts-2lq4.vercel.app/)
+
+---
+
+## 🛠️ Tech Stack
+
+- **React 18** (using Vite)
+- **JavaScript**
+- **Tailwind CSS**
+- **react-icons** (for UI icons)
+
+---
+
+## 📦 Features
+
+✅ **Pixel-Perfect Layout** (Figma matched)  
+✅ **Excel-like Cell Interaction**  
+✅ **Keyboard Navigation (Arrow Keys + Enter to edit)**  
+✅ **Editable Cells with Inline Input**  
+✅ **Search Functionality (case-insensitive)**  
+✅ **Responsive, Scrollable Table (up to 100 rows)**  
+✅ **Console logs for all buttons to avoid dead UI**  
+
+---
+
+## 🧪 Development Setup
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/tanisha26g/inscripts.git
+cd inscripts
+
+# 2. Install dependencies
+npm install
+
+# 3. Run locally
+npm run dev
